@@ -312,7 +312,7 @@
 
         // 2. Sección Fit (Solo categoría Fit al azar)
         const recetasFit = todasRecetas
-            .filter(r => r.categoria?.toLowerCase().includes('fit'))
+            .filter(r => r.categoria?.toLowerCase().includes('fit','saludable'))
             .sort(() => Math.random() - 0.5) // Mezclamos los resultados filtrados
             .slice(0, 2);
         render(recetasFit, 'grid-fit', 'fit');
