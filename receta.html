@@ -171,7 +171,7 @@
             /*const response = await fetch('./data/recetas.json');
             const datos = await response.json();
             const receta = datos.find(r => r.video_id === idCapturado);*/
-            const workerUrl = `https://api-recetas.carlosmanuelamparo2830.workers.dev${idVideo}`;
+            const workerUrl = `https://api-recetas.carlosmanuelamparo2830.workers.dev/?id=${idVideo}`;
             const respuesta = await fetch(workerUrl);
             const recetaEncontrada = await respuesta.json();
 
