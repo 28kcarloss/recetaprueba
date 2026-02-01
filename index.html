@@ -305,10 +305,18 @@
         // --- LÓGICA DE ALEATORIEDAD PARA TODAS LAS SECCIONES ---
 
         // 1. Selección del Chef (Cualquier receta al azar)
-        /*const recetasChef = [...todasRecetas]
+        const recetasChef = [...todasRecetas]
             .sort(() => Math.random() - 0.5)
             .slice(0, 8);
-        render(recetasChef, 'grid-general', 'standard');*/
+        render(recetasChef, 'grid-general', 'standard');
+
+
+        // 2. Sección Fit (Solo categoría Fit al azar)
+        /*const recetasFit = todasRecetas
+            .filter(r => r.categoria?.toLowerCase().includes('fit', ('fit')))
+            .sort(() => Math.random() - 0.5) // Mezclamos los resultados filtrados
+            .slice(0, 2);
+        render(recetasFit, 'grid-fit', 'fit');*/
         // 2. Sección Fit y Saludable (Mezcladas al azar)
         const recetasSaludablesYFit = todasRecetas
             .filter(r => {
@@ -319,15 +327,8 @@
             .sort(() => Math.random() - 0.5) // Mezcla ambos tipos de recetas
             .slice(0, 2); // Toma 2 para mantener el diseño de la cuadrícula
         
-        render(recetasSaludablesYFit, 'grid-fit', 'fit', 'grid-saludable', 'saludable');
+        render(recetasSaludablesYFit, 'grid-fit', 'fit');
 
-
-        // 2. Sección Fit (Solo categoría Fit al azar)
-        const recetasFit = todasRecetas
-            .filter(r => r.categoria?.toLowerCase().includes('fit', ('fit')))
-            .sort(() => Math.random() - 0.5) // Mezclamos los resultados filtrados
-            .slice(0, 2);
-        render(recetasFit, 'grid-fit', 'fit');
 
         // 3. Sección Postres (Solo categoría Postre al azar)
         const recetasPostres = todasRecetas
