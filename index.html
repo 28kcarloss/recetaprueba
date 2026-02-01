@@ -312,10 +312,10 @@
 
         // 2. Sección Fit (Solo categoría Fit al azar)
         const recetasFit = todasRecetas
-            .filter(r => r.categoria?.toLowerCase().includes('fit','saludable'))
+            .filter(r => r.categoria?.toLowerCase().includes('fit', ('fit')))
             .sort(() => Math.random() - 0.5) // Mezclamos los resultados filtrados
             .slice(0, 2);
-        render(recetasFit, 'grid-fit', 'fit');
+        render(recetasFit, 'grid-fit', 'grid-saludable', 'fit', 'saludable');
 
         // 3. Sección Postres (Solo categoría Postre al azar)
         const recetasPostres = todasRecetas
