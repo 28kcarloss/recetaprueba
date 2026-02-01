@@ -171,28 +171,24 @@
             /*const response = await fetch('./data/recetas.json');
             const datos = await response.json();
             const receta = datos.find(r => r.video_id === idCapturado);*/
-            const workerUrl = `https://api-recetas.tu-usuario.workers.dev?id=${idVideo}`;
+            const workerUrl = `https://api-recetas.carlosmanuelamparo2830.workers.dev${idVideo}`;
             const respuesta = await fetch(workerUrl);
             const recetaEncontrada = await respuesta.json();
 
             try {
-        // Pedimos específicamente el ID al Worker
-        const workerUrl = `https://api-recetas.tu-usuario.workers.dev?id=${idVideo}`;
-        const respuesta = await fetch(workerUrl);
-        const recetaEncontrada = await respuesta.json();
 
-        if (recetaEncontrada && !recetaEncontrada.error) {
-            // 1. Inyectamos el Schema para Google Adsense
-            generarSchemaJSONLD(recetaEncontrada);
+                 if (recetaEncontrada && !recetaEncontrada.error) {
+                    // 1. Inyectamos el Schema para Google Adsense
+                    generarSchemaJSONLD(recetaEncontrada);
             
-            // 2. Pintamos la interfaz (título, ingredientes, pasos)
-            pintarInterfaz(recetaEncontrada);
-        } else {
-            console.error("Receta no encontrada");
-        }
-          } catch (e) {
+                     // 2. Pintamos la interfaz (título, ingredientes, pasos)
+                     pintarInterfaz(recetaEncontrada);
+                     } else {
+                        console.error("Receta no encontrada");
+                     }
+            } catch (e) {
            console.error("Error de conexión:", e);
-         }
+            }
 
 
 
