@@ -152,57 +152,31 @@
 
 <script>
     async function cargarDatos() {
-        /*const params = new URLSearchParams(window.location.search);
-        const idCapturado = params.get('id') || params.get('video_id');
+        const urlParams = new URLSearchParams(window.location.search);
+        // Usamos idVideo para que coincida con tu lógica del Worker
+        const idVideo = urlParams.get('id');
 
-        if (!idCapturado) {
-            console.error("No se encontró ID en la URL");
+        if (!idVideo) {
+            window.location.href = 'index.html'; 
             return;
-        }*/
-         const urlParams = new URLSearchParams(window.location.search);
-         const idVideo = urlParams.get('id');
-
-         if (!idVideo) {
-             window.location.href = 'index.html'; // Redirigir si no hay ID
-        return;
         }
 
         try {
-            /*const response = await fetch('./data/recetas.json');
-            const datos = await response.json();
-            const receta = datos.find(r => r.video_id === idCapturado);*/
             const workerUrl = `https://api-recetas.carlosmanuelamparo2830.workers.dev/?id=${idVideo}`;
             const respuesta = await fetch(workerUrl);
-            const recetaEncontrada = await respuesta.json();
+            const receta = await respuesta.json(); // Definimos 'receta' directamente aquí
 
-            try {
-
-                 if (recetaEncontrada && !recetaEncontrada.error) {
-                    // 1. Inyectamos el Schema para Google Adsense
-                    generarSchemaJSONLD(recetaEncontrada);
-            
-                     // 2. Pintamos la interfaz (título, ingredientes, pasos)
-                     pintarInterfaz(recetaEncontrada);
-                     } else {
-                        console.error("Receta no encontrada");
-                     }
-            } catch (e) {
-           console.error("Error de conexión:", e);
-            }
-
-
-
-
-
-
-            if (receta) {
-                // 1. Video
+            if (receta && !receta.error) {
+                // 1. SEO y Metadatos para Adsense
+                generarSchemaJSONLD(receta);
+                
+                // 2. Renderizar Video
                 const iframe = document.getElementById('videoFrame');
                 iframe.src = (receta.url_iframe && receta.url_iframe !== "undefined") 
                              ? receta.url_iframe 
                              : `https://www.youtube.com/embed/${receta.video_id}`;
 
-                // 2. Textos
+                // 3. Renderizar Textos Básicos
                 document.getElementById('tituloReceta').innerText = receta.titulo;
                 document.getElementById('descripcionReceta').innerText = receta.descripcion || "";
                 document.getElementById('categoriaReceta').innerText = receta.categoria || "Gourmet";
@@ -211,39 +185,40 @@
                 document.getElementById('dificultadReceta').innerText = receta.dificultad || "Fácil";
 
                 // --- LÓGICA DE PERSISTENCIA DE CHECKBOXES ---
-                const storageKey = `ingredientes_${idCapturado}`;
-                // Recuperar estado guardado o crear uno nuevo
+                const storageKey = `ingredientes_${idVideo}`;
                 let estadoIngredientes = JSON.parse(sessionStorage.getItem(storageKey)) || {};
 
-                // 3. Renderizar Ingredientes
+                // 4. Renderizar Ingredientes
                 const containerIng = document.getElementById('listaIngredientes');
-                containerIng.innerHTML = (receta.ingredientes || []).map((ing, index) => {
-                    const isChecked = estadoIngredientes[index] ? 'checked' : '';
-                    return `
-                    <label class="flex items-start gap-4 p-4 bg-white border border-slate-100 rounded-2xl cursor-pointer hover:shadow-sm transition group">
-                        <div class="flex-shrink-0 mt-1">
-                            <input type="checkbox" 
-                                   data-index="${index}" 
-                                   class="checkbox-custom w-5 h-5 accent-orange-500 rounded border-slate-300 cursor-pointer" 
-                                   ${isChecked}>
-                        </div>
-                        <span class="text-slate-700 font-medium group-hover:text-orange-600 transition-colors">${ing}</span>
-                    </label>
-                `}).join('');
+                if (receta.ingredientes) {
+                    containerIng.innerHTML = receta.ingredientes.map((ing, index) => {
+                        const isChecked = estadoIngredientes[index] ? 'checked' : '';
+                        return `
+                        <label class="flex items-start gap-4 p-4 bg-white border border-slate-100 rounded-2xl cursor-pointer hover:shadow-sm transition group">
+                            <div class="flex-shrink-0 mt-1">
+                                <input type="checkbox" 
+                                       data-index="${index}" 
+                                       class="checkbox-custom w-5 h-5 accent-orange-500 rounded border-slate-300 cursor-pointer" 
+                                       ${isChecked}>
+                            </div>
+                            <span class="text-slate-700 font-medium group-hover:text-orange-600 transition-colors">${ing}</span>
+                        </label>`;
+                    }).join('');
 
-                // Event listener para guardar cambios
-                containerIng.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.addEventListener('change', (e) => {
-                        const idx = e.target.getAttribute('data-index');
-                        estadoIngredientes[idx] = e.target.checked;
-                        sessionStorage.setItem(storageKey, JSON.stringify(estadoIngredientes));
+                    // Listener para los checkboxes
+                    containerIng.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.addEventListener('change', (e) => {
+                            const idx = e.target.getAttribute('data-index');
+                            estadoIngredientes[idx] = e.target.checked;
+                            sessionStorage.setItem(storageKey, JSON.stringify(estadoIngredientes));
+                        });
                     });
-                });
+                }
 
-                // 4. Pasos (Igual que antes)
+                // 5. Renderizar Pasos
                 const containerPasos = document.getElementById('listaPasos');
-                const pasos = receta.pasos_clave || receta.pasos || receta.preparacion || [];
-                if (pasos && pasos.length > 0) {
+                const pasos = receta.pasos_clave || receta.pasos || [];
+                if (pasos.length > 0) {
                     containerPasos.innerHTML = pasos.map((paso, index) => `
                         <div class="flex gap-6 group">
                             <div class="flex-shrink-0 w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold shadow-lg shadow-orange-100 group-hover:scale-110 transition-transform">
@@ -257,10 +232,15 @@
                     containerPasos.innerHTML = `<p class="text-slate-400 italic">No hay pasos disponibles.</p>`;
                 }
 
+                // Inicializar iconos de Lucide
                 lucide.createIcons();
+
+            } else {
+                console.error("Receta no encontrada en la API");
+                // Opcional: mostrar un mensaje en el HTML
             }
         } catch (error) {
-            console.error("Error cargando receta:", error);
+            console.error("Error cargando receta desde el Worker:", error);
         }
     }
     window.onload = cargarDatos;
